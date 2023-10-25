@@ -1,0 +1,26 @@
+django
+djangorestframework
+
+
+# DOCUMENTATION
+# #############################################################################
+
+sphinx
+myst_parser
+furo
+
+
+# TESTING
+# #############################################################################
+
+coverage
+tox
+
+
+# BUILDING AND PUBLISHING
+# #############################################################################
+
+build
+pip-tools
+bumpversion
+twine
