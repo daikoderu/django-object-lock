@@ -1,13 +1,91 @@
+from typing import Iterable, Optional, Self
+
+from django.core.checks import Error
 from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 
-class LockableModel(models.Model):
-    """Abstract model to inherit from to create a model whose instances can be locked.
+class LockableManager(models.Manager):
+    """Manager that adds ``locked`` and ``unlocked`` methods to filter locked instances according
+    to a lock condition.
 
-    This adds the ``is_locked`` boolean field, which may be set from the admin.
+    The lock condition is specified in the constructor as keyword arguments.
     """
+
+    def __init__(self, lock_condition: Q, *args, **kwargs):
+        """Initialize the ``LockableManager``, specifying the condition that defines a locked
+        instance as a ``Q`` object.
+        """
+        super().__init__(*args, **kwargs)
+        self.lock_condition = lock_condition
+
+    def is_instance_locked(self, instance: models.Model) -> bool:
+        """Return whether a specific instance would be locked according to this manager.
+        """
+        return isinstance(instance, LockableModel) and instance in self.locked()
+
+    def locked(self) -> Self:
+        """Return locked instances.
+        """
+        return self.filter(self.lock_condition)
+    
+    def unlocked(self) -> Self:
+        """Return unlocked instances.
+        """
+        return self.exclude(self.lock_condition)
+    
+
+class LockableModel(models.Model):
+    """Abstract model to inherit from to create a model whose instances can be locked or unlocked.
+
+    Any model managers used by this class must inherit from ``LockableManager`` to specify the
+    condition that defines a locked instance.
+    """
+
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def check(cls, **kwargs):
+        errors = super().check(**kwargs)
+        if not isinstance(cls._default_manager, LockableManager):
+            errors.append(Error(
+                '%s\'s default manager does not inherit from LockableManager.' % cls.__name__,
+                hint='Please set a default manager that inherits from LockableManager.'
+            ))
+        return errors
+
+    def get_locked_status(self) -> bool:
+        """Get whether this instance is locked or not.
+        """
+        return self.__class__._default_manager.is_instance_locked(self)
+
+    def save(
+        self,
+        force_insert: bool = False,
+        force_update: bool = False,
+        using: Optional[str] = None,
+        update_fields: Optional[Iterable[str]] = None,
+    ) -> None:
+        if self.get_locked_status():
+            raise Exception('This object is locked and cannot be edited.')
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
+
+
+class FlagLockableModel(LockableModel):
+    """Abstract model to inherit from to create a model whose instances can be locked or unlocked
+    using a Boolean field called ``is_locked``.
+
+    This model adds an ``objects`` manager.
+    """
+
+    objects = LockableManager(Q(is_locked=True))
 
     is_locked = models.BooleanField(
         _('is locked'), default=False,
@@ -16,23 +94,3 @@ class LockableModel(models.Model):
 
     class Meta:
         abstract = True
-
-
-class AutoLockableModel(models.Model):
-    """Abstract model to inherit from to create a model that will be automatically locked or
-    unlocked depending on a condition.
-
-    This adds the ``get_locked_condition`` class method, which must be implemented to set the
-    condition (as a Q object) that must be met for an instance to be locked. This Q object may
-    be passed to a ``QuerySet`` to filter locked or unlocked objects.
-    """
-
-    class Meta:
-        abstract = True
-
-    @classmethod
-    def get_locked_condition(cls) -> Q:
-        """Implement this method to return a Q object specifying which model instances are
-        considered to be locked.
-        """
-        raise NotImplementedError('This method must be implemented.')

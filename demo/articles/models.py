@@ -2,10 +2,13 @@ from django.db import models
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
-from django_object_lock.models import LockableModel, AutoLockableModel
+from django_object_lock.models import LockableManager, FlagLockableModel, LockableModel
 
 
-class Article(LockableModel, models.Model):
+class Article(FlagLockableModel):
+    """Example of a model with a ``is_locked`` attribute.
+    """
+
     title = models.CharField(
         _('title'), max_length=120,
         help_text=_('The title of this article.')
@@ -15,7 +18,12 @@ class Article(LockableModel, models.Model):
         return self.title
 
 
-class Section(AutoLockableModel, models.Model):
+class ArticleSection(LockableModel):
+    """Example of a model that is related to a model that can be locked.
+
+    An ``ArticleSection`` is locked if and only if the related ``Article`` is locked.
+    """
+
     parent = models.ForeignKey(
         Article, verbose_name=_('parent article'), on_delete=models.CASCADE,
         help_text=_('The article containing this section.')
@@ -36,13 +44,11 @@ class Section(AutoLockableModel, models.Model):
         )
     )
 
+    objects = LockableManager(Q(parent__is_locked=True))
+
     class Meta:
         ordering = ['order']
 
     def __str__(self) -> str:
         return self.heading
-    
-    @classmethod
-    def get_locked_condition(cls) -> Q:
-        return Q(parent__is_locked=True)
     
