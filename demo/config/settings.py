@@ -21,7 +21,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Add our packages to the path.
 LIBRARY_SRC_PATH = str(BASE_DIR.parent / 'src')
-print(LIBRARY_SRC_PATH)
 if LIBRARY_SRC_PATH not in sys.path:
     sys.path.append(LIBRARY_SRC_PATH)
 
@@ -47,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_object_lock',
     'articles',
 ]
 
