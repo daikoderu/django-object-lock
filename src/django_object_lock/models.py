@@ -61,22 +61,6 @@ class LockableModel(models.Model):
         """
         return self.__class__._default_manager.is_instance_locked(self)
 
-    def save(
-        self,
-        force_insert: bool = False,
-        force_update: bool = False,
-        using: Optional[str] = None,
-        update_fields: Optional[Iterable[str]] = None,
-    ) -> None:
-        if self.get_locked_status():
-            raise Exception('This object is locked and cannot be edited.')
-        super().save(
-            force_insert=force_insert,
-            force_update=force_update,
-            using=using,
-            update_fields=update_fields,
-        )
-
 
 class FlagLockableModel(LockableModel):
     """Abstract model to inherit from to create a model whose instances can be locked or unlocked
