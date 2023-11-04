@@ -1,31 +1,39 @@
 from django.db import models
-from django.db.models import Q
+from django.utils.safestring import SafeString, mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from django_object_lock.models import LockableManager, FlagLockableModel, LockableModel
 
-
-class Article(FlagLockableModel):
-    """Example of a model with a ``is_locked`` attribute.
+class Article(models.Model):
+    """Example of a model that can be locked.
     """
-
     title = models.CharField(
         _('title'), max_length=120,
         help_text=_('The title of this article.')
     )
+    is_locked = models.BooleanField(
+        _('is locked'), default=False,
+        help_text=_('Whether this article is locked or not.')
+    )
 
     def __str__(self) -> str:
         return self.title
+    
+    @property
+    def rendered_content(self) -> SafeString:
+        return mark_safe('\n\n'.join(
+            f'<h1>{section.heading}</h1>{section.content}'
+            for section in self.sections.all()
+        ))
 
 
-class ArticleSection(LockableModel):
+class ArticleSection(models.Model):
     """Example of a model that is related to a model that can be locked.
 
     An ``ArticleSection`` is locked if and only if the related ``Article`` is locked.
     """
-
     parent = models.ForeignKey(
         Article, verbose_name=_('parent article'), on_delete=models.CASCADE,
+        related_name='sections',
         help_text=_('The article containing this section.')
     )
     heading = models.CharField(
@@ -40,11 +48,9 @@ class ArticleSection(LockableModel):
         _('order'),
         help_text=_(
             'The relative position of this field in relation to other sections in the same '
-            'report.'
+            'article.'
         )
     )
-
-    objects = LockableManager(Q(parent__is_locked=True))
 
     class Meta:
         ordering = ['order']
