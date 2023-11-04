@@ -20,6 +20,8 @@ class LockableAdminMixin(admin.ModelAdmin):
 
     To customize the appearance of the "locked" icon, set ``locked_icon_static_url`` to a static
     resource URL.
+
+    To allow manual object locking and/or unlocking, add the ``lock`` and/or ``unlock`` actions.
     """
     locked_icon_static_url = 'django_object_lock/images/locked.svg'
 
@@ -38,8 +40,15 @@ class LockableAdminMixin(admin.ModelAdmin):
         """
         raise NotImplementedError('This method must be implemented.')
 
-    def get_locked_queryset(self, queryset: QuerySet) -> QuerySet:
-        """Implement this method returning a ``QuerySet`` that returns only locked objects.
+    def get_locked_queryset(self, queryset: QuerySet, lock: bool) -> QuerySet:
+        """Implement this method returning a ``QuerySet`` that returns only locked objects
+        when ``lock`` is ``True`` or only unlocked objects when ``lock`` is ``False``.
+        """
+        raise NotImplementedError('This method must be implemented.')
+    
+    def set_locked_status(self, queryset: QuerySet, lock: bool):
+        """Implement to lock or unlock a ``QuerySet`` of objects when the ``lock`` or ``unlock``
+        actions are used.
         """
         raise NotImplementedError('This method must be implemented.')
     
@@ -50,3 +59,11 @@ class LockableAdminMixin(admin.ModelAdmin):
     def has_delete_permission(self, request: HttpRequest, obj: models.Model = None) -> bool:
         is_locked = obj is not None and self.is_instance_locked(obj)
         return not is_locked and super().has_delete_permission(request, obj)
+
+    @admin.action(description=_('Lock selected %(verbose_name_plural)s'))
+    def lock(self, request: HttpRequest, queryset: QuerySet):
+        self.set_locked_status(queryset, True)
+
+    @admin.action(description=_('Unlock selected %(verbose_name_plural)s'))
+    def unlock(self, request: HttpRequest, queryset: QuerySet):
+        self.set_locked_status(queryset, False)
