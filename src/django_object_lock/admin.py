@@ -46,7 +46,7 @@ class LockableAdminMixin(admin.ModelAdmin):
         """
         raise NotImplementedError('This method must be implemented.')
     
-    def set_locked_status(self, queryset: QuerySet, lock: bool):
+    def set_locked_status(self, queryset: QuerySet, lock: bool) -> QuerySet:
         """Implement to lock or unlock a ``QuerySet`` of objects when the ``lock`` or ``unlock``
         actions are used.
         """
