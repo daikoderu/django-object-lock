@@ -26,6 +26,12 @@ class LockableAdminMixin(admin.ModelAdmin):
     locked_icon_static_url = 'django_object_lock/images/locked.svg'
 
 
+    class Media:
+        css = {
+            'all': ['django_object_lock/css/styles.css'],
+        }
+
+
     def locked_icon(self, obj: models.Model) -> SafeString:
         return format_html(
             format_string='<img src="{src}" alt="{alt}" />',

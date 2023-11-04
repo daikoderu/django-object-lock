@@ -1,0 +1,4 @@
+/* Prevent the "locked" icon from taking too much space in the changelist. */
+#changelist .field-locked_icon {
+  width: 20px;
+}
