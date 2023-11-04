@@ -30,5 +30,5 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 django_object_lock = [
-    "static/*.*",
+    "static/django_object_lock/images/*.*",
 ]
