@@ -1,13 +1,19 @@
-from typing import Optional
+from functools import update_wrapper
 
 from django.contrib import admin
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import QuerySet
+from django.http import HttpResponseRedirect
 from django.http.request import HttpRequest
 from django.templatetags.static import static
+from django.urls import path, reverse
+from django.urls.resolvers import URLPattern
 from django.utils.html import format_html
 from django.utils.safestring import SafeString, mark_safe
 from django.utils.translation import gettext_lazy as _
+
+from django_object_lock.admin.views import default_lock_view, default_unlock_view
 from django_object_lock.models import LockableModel
 from django_object_lock.settings import dlo_settings
 
@@ -28,6 +34,8 @@ class LockableAdminMixin(admin.ModelAdmin):
     To allow manual object locking and/or unlocking, add the ``lock`` and/or ``unlock`` actions.
     """
     locked_icon_url: str = dlo_settings.DEFAULT_LOCKED_ICON_URL
+    lock_view = default_lock_view
+    unlock_view = default_unlock_view
 
 
     class Media:
@@ -75,17 +83,38 @@ class LockableAdminMixin(admin.ModelAdmin):
     
     def has_delete_permission(self, request: HttpRequest, obj: models.Model = None) -> bool:
         return not self.is_instance_locked(obj) and super().has_delete_permission(request, obj)
+    
+    def get_urls(self) -> list[URLPattern]:
+        def wrap(view):
+            def wrapper(*args, **kwargs):
+                print(self.admin_site.admin_view(view)(*args, **kwargs))
+                return self.admin_site.admin_view(view)(*args, **kwargs)
+
+            wrapper.model_admin = self
+            return update_wrapper(wrapper, view)
+
+        extra_urls = []
+        info = self.opts.app_label, self.opts.model_name
+
+        if 'lock' in self.actions:
+            extra_urls.append(path('lock/', wrap(self.lock_view), name='%s_%s_lock' % info))
+        if 'unlock' in self.actions:
+            extra_urls.append(path('unlock/', wrap(self.unlock_view), name='%s_%s_unlock' % info))
+            
+        return [*extra_urls, *super().get_urls()]
 
     @admin.action(description=_('Lock selected %(verbose_name_plural)s'))
-    def lock(self, request: HttpRequest, queryset: QuerySet):
-        for obj in queryset:
-            if not obj.is_locked():
-                self.set_locked_status(obj, True)
-                obj.save()
+    def lock(self, request: HttpRequest, queryset: QuerySet) -> HttpResponseRedirect:
+        info = self.admin_site.name, self.opts.app_label, self.opts.model_name
+        path = reverse('%s:%s_%s_lock' % info)
+        ct = ContentType.objects.get_for_model(queryset.model)
+        pks = ','.join(str(pk) for pk in queryset.values_list('pk', flat=True))
+        return HttpResponseRedirect('%s?ct=%s&ids=%s' % (path, ct.pk, pks,))
 
     @admin.action(description=_('Unlock selected %(verbose_name_plural)s'))
-    def unlock(self, request: HttpRequest, queryset: QuerySet):
-        for obj in queryset:
-            if obj.is_locked():
-                self.set_locked_status(obj, False)
-                obj.save()
+    def unlock(self, request: HttpRequest, queryset: QuerySet) -> HttpResponseRedirect:
+        info = self.opts.app_label, self.opts.model_name
+        path = self.admin_site.name, reverse('%s:%s_%s_unlock' % info)
+        ct = ContentType.objects.get_for_model(queryset.model)
+        pks = ','.join(str(pk) for pk in queryset.values_list('pk', flat=True))
+        return HttpResponseRedirect('%s?ct=%s&ids=%s' % (path, ct.pk, pks,))
