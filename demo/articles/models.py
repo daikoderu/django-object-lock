@@ -2,21 +2,29 @@ from django.db import models
 from django.utils.safestring import SafeString, mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from django_object_lock.models import LockableModel
 
-class Article(models.Model):
+
+class Article(LockableModel):
     """Example of a model that can be locked.
     """
     title = models.CharField(
         _('title'), max_length=120,
         help_text=_('The title of this article.')
     )
-    is_locked = models.BooleanField(
+    is_locked_flag = models.BooleanField(
         _('is locked'), default=False,
         help_text=_('Whether this article is locked or not.')
     )
 
     def __str__(self) -> str:
         return self.title
+    
+    def is_locked(self) -> bool:
+        return self.is_locked_flag
+    
+    def set_locked(self, value: bool) -> None:
+        self.is_locked_flag = value
     
     @property
     def rendered_content(self) -> SafeString:
@@ -26,7 +34,7 @@ class Article(models.Model):
         ))
 
 
-class ArticleSection(models.Model):
+class ArticleSection(LockableModel):
     """Example of a model that is related to a model that can be locked.
 
     An ``ArticleSection`` is locked if and only if the related ``Article`` is locked.
@@ -57,4 +65,7 @@ class ArticleSection(models.Model):
 
     def __str__(self) -> str:
         return self.heading
+    
+    def is_locked(self) -> bool:
+        return self.parent.is_locked_flag
     

@@ -8,7 +8,7 @@ from django.templatetags.static import static
 from django.utils.html import format_html
 from django.utils.safestring import SafeString, mark_safe
 from django.utils.translation import gettext_lazy as _
-
+from django_object_lock.models import LockableModel
 from django_object_lock.settings import dlo_settings
 
 
@@ -27,7 +27,7 @@ class LockableAdminMixin(admin.ModelAdmin):
 
     To allow manual object locking and/or unlocking, add the ``lock`` and/or ``unlock`` actions.
     """
-    locked_icon_url: Optional[str] = None
+    locked_icon_url: str = dlo_settings.DEFAULT_LOCKED_ICON_URL
 
 
     class Media:
@@ -39,8 +39,7 @@ class LockableAdminMixin(admin.ModelAdmin):
     def locked_icon(self, obj: models.Model) -> SafeString:
         return format_html(
             format_string='<img src="{src}" alt="{alt}" />',
-            src=static(self.locked_icon_url or dlo_settings.DEFAULT_LOCKED_ICON_URL),
-            alt=_('Locked')
+            src=static(self.locked_icon_url), alt=_('Locked')
         ) if self.is_instance_locked(obj) else mark_safe('')
     
     locked_icon.short_description = ''
@@ -48,33 +47,45 @@ class LockableAdminMixin(admin.ModelAdmin):
     def is_instance_locked(self, obj: models.Model) -> bool:
         """Implement this method returning ``True`` if the instance should be considered locked,
         and ``False`` otherwise.
-        """
-        raise NotImplementedError('This method must be implemented.')
 
-    def get_locked_queryset(self, queryset: QuerySet, lock: bool) -> QuerySet:
-        """Implement this method returning a ``QuerySet`` that returns only locked objects
-        when ``lock`` is ``True`` or only unlocked objects when ``lock`` is ``False``.
+        If your model inherits from ``LockableModel``, you need not implement this method. In that
+        case, the ``LockableModel``'s ``is_locked`` method is used.
         """
-        raise NotImplementedError('This method must be implemented.')
+        if obj is None:
+            return False
+        elif isinstance(obj, LockableModel):
+            return obj.is_locked()
+        else:
+            raise NotImplementedError('This method must be implemented.')
     
-    def set_locked_status(self, queryset: QuerySet, lock: bool) -> QuerySet:
-        """Implement to lock or unlock a ``QuerySet`` of objects when the ``lock`` or ``unlock``
+    def set_locked_status(self, obj: models.Model, lock: bool) -> None:
+        """Implement to lock or unlock an object when the ``lock`` or ``unlock``
         actions are used.
+
+        If your model inherits from ``LockableModel``, you need not implement this method. In that
+        case, the ``LockableModel``'s ``set_locked`` method is used.
         """
-        raise NotImplementedError('This method must be implemented.')
+        if isinstance(obj, LockableModel):
+            obj.set_locked(lock)
+        else:
+            raise NotImplementedError('This method must be implemented.')
     
     def has_change_permission(self, request: HttpRequest, obj: models.Model = None) -> bool:
-        is_locked = obj is not None and self.is_instance_locked(obj)
-        return not is_locked and super().has_change_permission(request, obj)
+        return not self.is_instance_locked(obj) and super().has_change_permission(request, obj)
     
     def has_delete_permission(self, request: HttpRequest, obj: models.Model = None) -> bool:
-        is_locked = obj is not None and self.is_instance_locked(obj)
-        return not is_locked and super().has_delete_permission(request, obj)
+        return not self.is_instance_locked(obj) and super().has_delete_permission(request, obj)
 
     @admin.action(description=_('Lock selected %(verbose_name_plural)s'))
     def lock(self, request: HttpRequest, queryset: QuerySet):
-        self.set_locked_status(queryset, True)
+        for obj in queryset:
+            if not obj.is_locked():
+                self.set_locked_status(obj, True)
+                obj.save()
 
     @admin.action(description=_('Unlock selected %(verbose_name_plural)s'))
     def unlock(self, request: HttpRequest, queryset: QuerySet):
-        self.set_locked_status(queryset, False)
+        for obj in queryset:
+            if obj.is_locked():
+                self.set_locked_status(obj, False)
+                obj.save()
