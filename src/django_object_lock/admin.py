@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django.contrib import admin
 from django.db import models
 from django.db.models import QuerySet
@@ -6,6 +8,8 @@ from django.templatetags.static import static
 from django.utils.html import format_html
 from django.utils.safestring import SafeString, mark_safe
 from django.utils.translation import gettext_lazy as _
+
+from django_object_lock.settings import dlo_settings
 
 
 class LockableAdminMixin(admin.ModelAdmin):
@@ -23,7 +27,7 @@ class LockableAdminMixin(admin.ModelAdmin):
 
     To allow manual object locking and/or unlocking, add the ``lock`` and/or ``unlock`` actions.
     """
-    locked_icon_static_url = 'django_object_lock/images/locked.svg'
+    locked_icon_url: Optional[str] = None
 
 
     class Media:
@@ -35,7 +39,8 @@ class LockableAdminMixin(admin.ModelAdmin):
     def locked_icon(self, obj: models.Model) -> SafeString:
         return format_html(
             format_string='<img src="{src}" alt="{alt}" />',
-            src=static(self.locked_icon_static_url), alt=_('Locked')
+            src=static(self.locked_icon_url or dlo_settings.DEFAULT_LOCKED_ICON_URL),
+            alt=_('Locked')
         ) if self.is_instance_locked(obj) else mark_safe('')
     
     locked_icon.short_description = ''
