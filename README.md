@@ -16,7 +16,7 @@ and then "unlock" it to allow further modifications or deletions.
 
     The detail page for a locked object will be read-only.
 
-    ![Locked article detail](docs/images/example-article.png)
+    ![Locked article detail](docs/images/example-article-detail.png)
 
 *   This "locked" status may be set manually (adding a field for your users to lock or unlock the object) or
     automatically (locking objects depending on a condition).
