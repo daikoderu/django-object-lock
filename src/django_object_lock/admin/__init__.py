@@ -40,7 +40,7 @@ class LockableAdminMixin(admin.ModelAdmin):
 
     class Media:
         css = {
-            'all': ['django_object_lock/css/styles.css'],
+            'all': ['django_object_lock/css/admin.css'],
         }
 
 
@@ -87,7 +87,6 @@ class LockableAdminMixin(admin.ModelAdmin):
     def get_urls(self) -> list[URLPattern]:
         def wrap(view):
             def wrapper(*args, **kwargs):
-                print(self.admin_site.admin_view(view)(*args, **kwargs))
                 return self.admin_site.admin_view(view)(*args, **kwargs)
 
             wrapper.model_admin = self
