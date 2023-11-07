@@ -1,5 +1,10 @@
 {% extends "admin/base_site.html" %}
-{% load i18n admin_urls %}
+{% load i18n admin_urls static %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'django_object_lock/css/admin.css' %}" />
+{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">
@@ -30,6 +35,19 @@
     </a></li>
     {% endfor %}
   </ul>
+
+  <form method="post">
+    {% csrf_token %}
+    <div>
+      <input type="hidden" name="ids" value="{{ ids }}" />
+      {% if is_popup %}<input type="hidden" name="{{ is_popup_var }}" value="1" />{% endif %}
+      {% if to_field %}<input type="hidden" name="{{ to_field_var }}" value="{{ to_field }}" />{% endif %}
+      <input type="submit" value="{% translate "Yes, I'm sure" %}" />
+      <a href="{% url opts|admin_urlname:'changelist' %}" class="button cancel-link">
+        {% translate "No, take me back" %}
+      </a>
+    </div>
+  </form>
 
 </div>
 {% else %}

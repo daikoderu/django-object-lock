@@ -13,31 +13,19 @@ def get_lockable_objects(model: type[Model], pk_string: str) -> QuerySet[Model]:
         return model.objects.none()
 
 
-def lock_or_unlock_by_pk(
-    modeladmin: ModelAdmin, request: HttpRequest, pk: int | str, lock: bool
-) -> None:
-    queryset = modeladmin.get_queryset(request)
-    try:
-        obj = queryset.get(pk=pk)
-        if modeladmin.is_instance_locked(obj) != lock:
-            modeladmin.set_locked_status(obj, True)
-            obj.save()
-    except (modeladmin.model.DoesNotExist, ValidationError, ValueError):
-        pass
-
-
 def default_lock_or_unlock_view(
     modeladmin: ModelAdmin, request: HttpRequest, lock: bool
 ) -> TemplateResponse | HttpResponseRedirect:
     model = modeladmin.model
+    ids_string = request.POST.get('ids', request.GET.get('ids', ''))
     objects = [
-        obj for obj in get_lockable_objects(model, request.GET.get('ids', ''))
+        obj for obj in get_lockable_objects(model, ids_string)
         if obj.is_locked() != lock
     ]
-    if request.method == 'POST' and request.POST.get('post', False) == 'yes':
-        # POST method with confirmation, so we lock/unlock.
+    if request.method == 'POST':
+        # POST method, so we lock/unlock.
         for obj in objects:
-            modeladmin.set_locked_status(obj, True)
+            modeladmin.set_locked_status(obj, lock)
             obj.save()
         info = modeladmin.admin_site.name, modeladmin.opts.app_label, modeladmin.opts.model_name
         return HttpResponseRedirect(reverse('%s:%s_%s_changelist' % info))
@@ -49,6 +37,7 @@ def default_lock_or_unlock_view(
             'objects': objects,
             'count': len(objects),
             'lock': lock,
+            'ids': ','.join(str(obj.pk) for obj in objects),
             'opts': model._meta  # noqa
         }
         return TemplateResponse(request, 'django_object_lock/admin_%s.html' % action, context)

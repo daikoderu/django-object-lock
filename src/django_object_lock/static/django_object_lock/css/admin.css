@@ -2,3 +2,22 @@
 #changelist .field-locked_icon {
   width: 20px;
 }
+
+/* Style the lock/unlock confirmation buttons similarly to the delete confirmation buttons. */
+#lock-confirmation form [type="submit"],
+#lock-confirmation form .cancel-link {
+  color: var(--button-fg);
+  border-radius: 4px;
+  padding: 10px 15px;
+}
+#lock-confirmation form [type="submit"] {
+  background: var(--delete-button-bg);
+}
+#lock-confirmation form .cancel-link {
+  display: inline-block;
+  vertical-align: middle;
+  height: 0.9375rem;
+  line-height: 0.9375rem;
+  background: var(--close-button-bg);
+  margin: 0 0 0 10px;
+}
