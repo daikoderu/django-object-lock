@@ -1,6 +1,6 @@
 # Installation
 
-To use `django-admin-lock` in your own project, install the Python library from PyPI:
+To use `django-object-lock` in your own project, install the Python library from PyPI:
 
 ```sh
 pip install django-object-lock

@@ -4,7 +4,7 @@
 >   
 >   We don't need to edit this any longer. I wish I could prevent this object from being edited anymore...
 
-**Django Object Lock** (`django-admin-lock`) adds a "locked" status to your models to prevent their unintentional
+**Django Object Lock** (`django-object-lock`) adds a "locked" status to your models to prevent their unintentional
 modification or deletion from your Django admin site, your API or any view. You can "lock" an instance to protect it
 and then "unlock" it to allow further modifications or deletions.
 
@@ -32,7 +32,7 @@ Check out the [documentation](https://django-object-lock.readthedocs.io/) for mo
 
 ## Support
 
-`django-admin-lock` supports the following versions of Python and Django:
+`django-object-lock` supports the following versions of Python and Django:
 
 *   Python >= 3.6
 *   Django >= 3.0
