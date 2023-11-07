@@ -1,7 +1,6 @@
 from functools import update_wrapper
 
 from django.contrib import admin
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models import QuerySet
 from django.http import HttpResponseRedirect
@@ -106,14 +105,12 @@ class LockableAdminMixin(admin.ModelAdmin):
     def lock(self, request: HttpRequest, queryset: QuerySet) -> HttpResponseRedirect:
         info = self.admin_site.name, self.opts.app_label, self.opts.model_name
         path = reverse('%s:%s_%s_lock' % info)
-        ct = ContentType.objects.get_for_model(queryset.model)
         pks = ','.join(str(pk) for pk in queryset.values_list('pk', flat=True))
-        return HttpResponseRedirect('%s?ct=%s&ids=%s' % (path, ct.pk, pks,))
+        return HttpResponseRedirect('%s?ids=%s' % (path, pks))
 
     @admin.action(description=_('Unlock selected %(verbose_name_plural)s'))
     def unlock(self, request: HttpRequest, queryset: QuerySet) -> HttpResponseRedirect:
-        info = self.opts.app_label, self.opts.model_name
-        path = self.admin_site.name, reverse('%s:%s_%s_unlock' % info)
-        ct = ContentType.objects.get_for_model(queryset.model)
+        info = self.admin_site.name, self.opts.app_label, self.opts.model_name
+        path = reverse('%s:%s_%s_unlock' % info)
         pks = ','.join(str(pk) for pk in queryset.values_list('pk', flat=True))
-        return HttpResponseRedirect('%s?ct=%s&ids=%s' % (path, ct.pk, pks,))
+        return HttpResponseRedirect('%s?ids=%s' % (path, pks))

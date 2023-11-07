@@ -1,0 +1,13 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+{% if objects %}
+<div id="lock-confirmation">
+  <h1>{% trans "Are you sure?" %}</h1>
+  <p>The following objects will be unlocked and made editable again:</p>
+</div>
+{% else %}
+<p>No objects have been selected for unlocking.</p>
+{% endif %}
+{% endblock %}

@@ -1,12 +1,8 @@
-from typing import TYPE_CHECKING
-
+from django.contrib.admin import ModelAdmin
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Model
-from django.http import HttpResponse
-
-
-if TYPE_CHECKING:
-    from django_object_lock.admin import LockableAdminMixin
+from django.forms import ValidationError
+from django.http import HttpRequest, HttpResponseRedirect
+from django.template.response import TemplateResponse
 
 
 def parse_pks(pk_string: str) -> list[int] | list[str]:
@@ -18,36 +14,46 @@ def parse_pks(pk_string: str) -> list[int] | list[str]:
 
 
 def lock_or_unlock_by_pk(
-    model_admin: 'LockableAdminMixin', model_class: type[Model], pk: int | str, lock: bool
+    modeladmin: ModelAdmin, request: HttpRequest, pk: int | str, lock: bool
 ) -> None:
+    queryset = modeladmin.get_queryset(request)
     try:
-        obj = model_class._default_manager.get(pk=pk)
-        if model_admin.is_instance_locked(obj) != lock:
-            model_admin.set_locked_status(obj, True)
+        obj = queryset.get(pk=pk)
+        if modeladmin.is_instance_locked(obj) != lock:
+            modeladmin.set_locked_status(obj, True)
             obj.save()
-    except model_class.DoesNotExist:
+    except (modeladmin.model.DoesNotExist, ValidationError, ValueError):
         pass
 
 
-def default_lock_view(model_admin, request, *args, **kwargs):
-    # TODO Query parameter 'ct' could not be defined, and the ContentType could not exist
-    # TODO Account for other HTTP methods
-    ct = ContentType.objects.get(pk=request.GET.get('ct', None))
+def default_lock_or_unlock_view(
+    modeladmin: ModelAdmin, request: HttpRequest, lock: bool
+) -> TemplateResponse | HttpResponseRedirect:
     pk_list = parse_pks(request.GET.get('ids', ''))
-    if request.method == 'POST':
+    if request.method == 'POST' and request.POST.get('post', False) == 'yes':
+        # POST method with confirmation, so we lock/unlock.
         for pk in pk_list:
-            lock_or_unlock_by_pk(model_admin, ct, pk, True)
+            lock_or_unlock_by_pk(modeladmin, request, pk, lock)
     else:
-        return HttpResponse('Locking objects.')
+        # Show a confirmation message.
+        action = 'lock' if lock else 'unlock'
+        model = modeladmin.model
+        context = {
+            **modeladmin.admin_site.each_context(request),
+            'objects': model.objects.filter(pk__in=pk_list),
+            'lock': lock,
+            'opts': model._meta  # noqa
+        }
+        return TemplateResponse(request, 'django_object_lock/admin_%s.html' % action, context)
 
 
-def default_unlock_view(model_admin, request, *args, **kwargs):
-    # TODO Query parameter 'ct' could not be defined, and the ContentType could not exist
-    # TODO Account for other HTTP methods
-    ct = ContentType.objects.get(pk=request.GET.get('ct', None))
-    pk_list = parse_pks(request.GET.get('ids', ''))
-    if request.method == 'POST':
-        for pk in pk_list:
-            lock_or_unlock_by_pk(model_admin, ct, pk, False)
-    else:
-        return HttpResponse('Unlocking objects.')
+def default_lock_view(modeladmin: ModelAdmin, request: HttpRequest):
+    """Default lock confirmation view for the Django admin.
+    """
+    return default_lock_or_unlock_view(modeladmin, request, True)
+
+
+def default_unlock_view(modeladmin: ModelAdmin, request: HttpRequest):
+    """Default unlock confirmation view for the Django admin.
+    """
+    return default_lock_or_unlock_view(modeladmin, request, False)

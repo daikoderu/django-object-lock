@@ -32,4 +32,5 @@ where = ["src"]
 django_object_lock = [
     "static/django_object_lock/images/*.*",
     "static/django_object_lock/css/*.css",
+    "templates/django_object_lock/*.html",
 ]
