@@ -8,6 +8,8 @@
 modification or deletion from your Django admin site, your API or any view. You can "lock" an instance to protect it
 and then "unlock" it to allow further modifications or deletions.
 
+Check out the [documentation](https://django-object-lock.readthedocs.io/) for more information.
+
 ## Features
 
 *   A lock icon will appear in the changelist for each locked instance.
