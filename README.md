@@ -1,24 +1,37 @@
 # Django Object Lock
 
-`django-object-lock` helps you "lock" your model instances to make them read-only and avoid
-unintended modifications or deletions on your locked objects. You can then "unlock" your objects
-to make them editable again.
+>   Oops! I think I've edited the wrong object.
+>   
+>   We don't need to edit this any longer. I wish I could prevent this object from being edited anymore...
+
+**Django Object Lock** (`django-admin-lock`) adds a "locked" status to your models to prevent their unintentional
+modification or deletion from your Django admin site, your API or any view. You can "lock" an instance to protect it
+and then "unlock" it to allow further modifications or deletions.
 
 ## Features
 
-*   A `LockableAdminMixin` your model admins can inherit from to support instance locking.
-    An icon will appear in the changelist for each locked instance.
+*   A lock icon will appear in the changelist for each locked instance.
 
     ![Locked articles](docs/images/example-article.png)
 
-*   The possibility to control under what conditions are your objects locked.
+    The detail page for a locked object will be read-only.
 
-    For example, you can have a parent model that can be locked setting manually a Boolean field
-    and a child model that will be automatically locked or unlocked whenever its parent is.
+    ![Locked article detail](docs/images/example-article.png)
 
-    ![Locked articles](docs/images/example-article-section.png)
+*   This "locked" status may be set manually (adding a field for your users to lock or unlock the object) or
+    automatically (locking objects depending on a condition).
+
+    For example, you can have a parent model that can be locked setting manually a Boolean field and a child model
+    that will be automatically locked or unlocked whenever its parent is.
+
+    ![Locked article sections](docs/images/example-article-section.png)
 
     This way, you can lock and unlock entire hierarchies of model instances.
 
-There is no ``LockableModel`` in order to prevent this library from being coupled to your models
-and your database. Instead, use the admin mixins to define when an object is locked.
+## Support
+
+`django-admin-lock` supports the following versions of Python and Django:
+
+*   Python >= 3.6
+*   Django >= 3.0
+*   Django REST Framework >= 3.11 (to enforce object locking from your API `ViewSet`s)
