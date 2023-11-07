@@ -1,11 +1,36 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_urls %}
 
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+&rsaquo; {% translate "Unlock objects" %}
+</div>
+{% endblock %}
+
 {% block content %}
 {% if objects %}
 <div id="lock-confirmation">
+
   <h1>{% trans "Are you sure?" %}</h1>
   <p>The following objects will be unlocked and made editable again:</p>
+
+  <h2>{% translate "Summary" %}</h2>
+  <ul>
+    <li>{{ opts.verbose_name_plural|capfirst }}: {{ objects|length }}</li>
+  </ul>
+
+  <h2>{% translate "Objects" %}</h2>
+  <ul>
+    {% for object in objects %}
+    <li><a href="{% url opts|admin_urlname:'change' object_id=object.pk %}">
+      {{ object }}
+    </a></li>
+    {% endfor %}
+  </ul>
+
 </div>
 {% else %}
 <p>No objects have been selected for unlocking.</p>

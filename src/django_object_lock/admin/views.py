@@ -1,16 +1,16 @@
 from django.contrib.admin import ModelAdmin
-from django.contrib.contenttypes.models import ContentType
+from django.db.models import Model, QuerySet
 from django.forms import ValidationError
 from django.http import HttpRequest, HttpResponseRedirect
 from django.template.response import TemplateResponse
+from django.urls import reverse
 
 
-def parse_pks(pk_string: str) -> list[int] | list[str]:
-    pk_strings = pk_string.strip().split(',')
+def get_lockable_objects(model: type[Model], pk_string: str) -> QuerySet[Model]:
     try:
-        return [int(x) for x in pk_strings]
+        return model.objects.filter(pk__in=pk_string.strip().split(','))
     except ValueError:
-        return [x.strip() for x in pk_strings if x]
+        return model.objects.none()
 
 
 def lock_or_unlock_by_pk(
@@ -29,18 +29,25 @@ def lock_or_unlock_by_pk(
 def default_lock_or_unlock_view(
     modeladmin: ModelAdmin, request: HttpRequest, lock: bool
 ) -> TemplateResponse | HttpResponseRedirect:
-    pk_list = parse_pks(request.GET.get('ids', ''))
+    model = modeladmin.model
+    objects = [
+        obj for obj in get_lockable_objects(model, request.GET.get('ids', ''))
+        if obj.is_locked() != lock
+    ]
     if request.method == 'POST' and request.POST.get('post', False) == 'yes':
         # POST method with confirmation, so we lock/unlock.
-        for pk in pk_list:
-            lock_or_unlock_by_pk(modeladmin, request, pk, lock)
+        for obj in objects:
+            modeladmin.set_locked_status(obj, True)
+            obj.save()
+        info = modeladmin.admin_site.name, modeladmin.opts.app_label, modeladmin.opts.model_name
+        return HttpResponseRedirect(reverse('%s:%s_%s_changelist' % info))
     else:
         # Show a confirmation message.
         action = 'lock' if lock else 'unlock'
-        model = modeladmin.model
         context = {
             **modeladmin.admin_site.each_context(request),
-            'objects': model.objects.filter(pk__in=pk_list),
+            'objects': objects,
+            'count': len(objects),
             'lock': lock,
             'opts': model._meta  # noqa
         }
