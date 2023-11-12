@@ -55,8 +55,6 @@ filelock==3.12.4
     # via
     #   tox
     #   virtualenv
-flake8==6.1.0
-    # via -r requirements-dev.in
 furo==2023.9.10
     # via -r requirements-dev.in
 idna==3.4
@@ -82,8 +80,6 @@ markdown-it-py==3.0.0
     #   rich
 markupsafe==2.1.3
     # via jinja2
-mccabe==0.7.0
-    # via flake8
 mdit-py-plugins==0.4.0
     # via myst-parser
 mdurl==0.1.2
@@ -110,10 +106,6 @@ platformdirs==3.11.0
     #   virtualenv
 pluggy==1.3.0
     # via tox
-pycodestyle==2.11.1
-    # via flake8
-pyflakes==3.1.0
-    # via flake8
 pygments==2.16.1
     # via
     #   furo

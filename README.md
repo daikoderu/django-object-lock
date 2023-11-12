@@ -47,29 +47,26 @@ Django is the only required dependency.
 
 You can find a demo project and a test suite in the `demo` directory.
 
-```sh
-cd demo
-python manage.py runserver
-```
-
 The demo project contains two lockable models: an `Article` model and a child `ArticleSection` model.
 
-**To run the demo application:**
+You will need to install development dependencies in your Python environment:
 
 ```sh
-cd demo
-python manage.py runserver
+pip install -r requirements-dev.txt
 ```
 
-**To run the test suite:**
+Then, run the demo application:
 
 ```sh
-cd demo
-python runtests.py
+cd demo && python manage.py runserver
 ```
 
-**To check for PEP8 compliance with `flake8`:**
+Or run tests with Tox:
 
 ```sh
-flake8 src/django_object_lock/
+# Run the test suite.
+tox -e py3-10
+
+# Check PEP8 compliance.
+tox -e flake8
 ```
