@@ -36,19 +36,17 @@ class LockableAdminMixin(admin.ModelAdmin):
     lock_view = default_lock_view
     unlock_view = default_unlock_view
 
-
     class Media:
         css = {
             'all': ['django_object_lock/css/admin.css'],
         }
-
 
     def locked_icon(self, obj: models.Model) -> SafeString:
         return format_html(
             format_string='<img src="{src}" alt="{alt}" />',
             src=static(self.locked_icon_url), alt=_('Locked')
         ) if self.is_instance_locked(obj) else mark_safe('')
-    
+
     locked_icon.short_description = ''
 
     def is_instance_locked(self, obj: models.Model) -> bool:
@@ -64,7 +62,7 @@ class LockableAdminMixin(admin.ModelAdmin):
             return obj.is_locked()
         else:
             raise NotImplementedError('This method must be implemented.')
-    
+
     def set_locked_status(self, obj: models.Model, lock: bool) -> None:
         """Implement to lock or unlock an object when the ``lock`` or ``unlock``
         actions are used.
@@ -76,13 +74,13 @@ class LockableAdminMixin(admin.ModelAdmin):
             obj.set_locked(lock)
         else:
             raise NotImplementedError('This method must be implemented.')
-    
+
     def has_change_permission(self, request: HttpRequest, obj: models.Model = None) -> bool:
         return not self.is_instance_locked(obj) and super().has_change_permission(request, obj)
-    
+
     def has_delete_permission(self, request: HttpRequest, obj: models.Model = None) -> bool:
         return not self.is_instance_locked(obj) and super().has_delete_permission(request, obj)
-    
+
     def get_urls(self) -> list[URLPattern]:
         def wrap(view):
             def wrapper(*args, **kwargs):
@@ -98,7 +96,7 @@ class LockableAdminMixin(admin.ModelAdmin):
             extra_urls.append(path('lock/', wrap(self.lock_view), name='%s_%s_lock' % info))
         if 'unlock' in self.actions:
             extra_urls.append(path('unlock/', wrap(self.unlock_view), name='%s_%s_unlock' % info))
-            
+
         return [*extra_urls, *super().get_urls()]
 
     @admin.action(description=_('Lock selected %(verbose_name_plural)s'))

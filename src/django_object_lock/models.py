@@ -23,13 +23,13 @@ class LockableModel(models.Model):
         (return ``False``).
         """
         raise NotImplementedError('This method must be implemented.')
-    
+
     def set_locked(self, value: bool) -> None:
         """Implement to set the locked status of this model instance to allow manual locking
         and unlocking.
         """
         raise NotImplementedError('This method must be implemented.')
-    
+
     def save(self, *args, **kwargs):
         if self.is_locked() and getattr(self, '_was_locked_on_load', False):
             raise ObjectLocked()

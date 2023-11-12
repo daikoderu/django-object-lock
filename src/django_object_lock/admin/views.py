@@ -1,6 +1,5 @@
 from django.contrib.admin import ModelAdmin
 from django.db.models import Model, QuerySet
-from django.forms import ValidationError
 from django.http import HttpRequest, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
