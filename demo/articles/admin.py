@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.db.models import QuerySet
 from django.utils.safestring import SafeString
 from django_object_lock.admin import LockableAdminMixin
 

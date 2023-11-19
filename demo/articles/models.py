@@ -19,13 +19,13 @@ class Article(LockableModel):
 
     def __str__(self) -> str:
         return self.title
-    
+
     def is_locked(self) -> bool:
         return self.is_locked_flag
-    
+
     def set_locked(self, value: bool) -> None:
         self.is_locked_flag = value
-    
+
     @property
     def rendered_content(self) -> SafeString:
         return mark_safe('\n\n'.join(
@@ -65,7 +65,6 @@ class ArticleSection(LockableModel):
 
     def __str__(self) -> str:
         return self.heading
-    
+
     def is_locked(self) -> bool:
         return self.parent.is_locked_flag
-    
