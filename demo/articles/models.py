@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.html import format_html
 from django.utils.safestring import SafeString, mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -29,7 +30,7 @@ class Article(LockableModel):
     @property
     def rendered_content(self) -> SafeString:
         return mark_safe('\n\n'.join(
-            f'<h1>{section.heading}</h1>{section.content}'
+            format_html('<h1>{heading}</h1>{content}', heading=section.heading, content=section.content)
             for section in self.sections.all()
         ))
 
