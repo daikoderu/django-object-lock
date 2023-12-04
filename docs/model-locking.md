@@ -56,7 +56,7 @@ class Article(LockableModel):
         self.is_locked_flag = value
 ```
 
-You could add more logic in any of these methods that your may require.
+You could let the user set the `is_locked_flag`, or add more logic in any of these methods that your may require.
 
 
 ## Making related objects lockable
