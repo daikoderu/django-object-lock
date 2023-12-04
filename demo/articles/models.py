@@ -2,20 +2,15 @@ from django.db import models
 from django.utils.html import format_html
 from django.utils.safestring import SafeString, mark_safe
 from django.utils.translation import gettext_lazy as _
-
 from django_object_lock.models import LockableModel
 
 
 class Article(LockableModel):
     """Example of a model that can be locked.
     """
-    title = models.CharField(
-        _('title'), max_length=120,
-        help_text=_('The title of this article.')
-    )
+    title = models.CharField(_('title'), max_length=120, help_text=_('The title of this article.'))
     is_locked_flag = models.BooleanField(
-        _('is locked'), default=False,
-        help_text=_('Whether this article is locked or not.')
+        _('is locked'), default=False, help_text=_('Whether this article is locked or not.')
     )
 
     def __str__(self) -> str:
@@ -41,24 +36,14 @@ class ArticleSection(LockableModel):
     An ``ArticleSection`` is locked if and only if the related ``Article`` is locked.
     """
     parent = models.ForeignKey(
-        Article, verbose_name=_('parent article'), on_delete=models.CASCADE,
-        related_name='sections',
+        Article, verbose_name=_('parent article'), on_delete=models.CASCADE, related_name='sections',
         help_text=_('The article containing this section.')
     )
-    heading = models.CharField(
-        _('heading'), max_length=120,
-        help_text=_('The heading for this section.')
-    )
-    content = models.TextField(
-        _('content'),
-        help_text=_('The contents of this section.')
-    )
+    heading = models.CharField(_('heading'), max_length=120, help_text=_('The heading for this section.'))
+    content = models.TextField(_('content'), help_text=_('The contents of this section.'))
     order = models.IntegerField(
         _('order'),
-        help_text=_(
-            'The relative position of this field in relation to other sections in the same '
-            'article.'
-        )
+        help_text=_('The relative position of this field in relation to other sections in the same article.')
     )
 
     class Meta:
