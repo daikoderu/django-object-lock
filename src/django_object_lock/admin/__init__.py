@@ -20,10 +20,9 @@ from django_object_lock.settings import dlo_settings
 class LockableAdminMixin(admin.ModelAdmin):
     """Mixin to allow model instances to be locked from the admin.
 
-    Implement ``is_instance_locked`` and ``get_locked_queryset`` to define what condition must be
-    satisfied for an instance to be locked. For example, check whether a Boolean field is set to
-    true (to let the user lock and unlock the instance manually) or depend on the "locked" status
-    of a related instance.
+    Implement ``is_instance_locked`` to define what condition must be satisfied for an instance to be locked.
+    For example, check whether a Boolean field is set to true (to let the user lock and unlock the instance manually)
+    or depend on the "locked" status of a related instance.
 
     Add the ``locked_icon`` field to ``list_display`` to display a "locked" icon in the changelist.
 
