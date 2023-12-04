@@ -18,7 +18,7 @@ class Article(LockableModel):
     )
 
     def __str__(self) -> str:
-        return self.title
+        return f'Article "{self.title}"'
 
     def is_locked(self) -> bool:
         return self.is_locked_flag
@@ -64,7 +64,7 @@ class ArticleSection(LockableModel):
         ordering = ['order']
 
     def __str__(self) -> str:
-        return self.heading
+        return f'ArticleSection "{self.heading}"'
 
     def is_locked(self) -> bool:
         return self.parent.is_locked_flag
