@@ -77,3 +77,5 @@ Both actions will include a confirmation screen so your admin users know what th
 instances.
 
 ![Locked articles](./images/example-action-lock-confirm.png)
+
+Currently, both actions require the default action permissions.
