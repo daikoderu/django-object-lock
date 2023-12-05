@@ -13,6 +13,7 @@ class ModelLockingTestCase(TestCase):
             Article(title='Article 3', is_locked_flag=True),
             Article(title='Article 4', is_locked_flag=False),
             Article(title='Article 5', is_locked_flag=False),
+            Article(title='Article 6', is_locked_flag=True),
         ]
         Article.objects.bulk_create(articles)
 
@@ -67,7 +68,7 @@ class ModelLockingTestCase(TestCase):
         self.assertEqual(article.pk, None)
 
     def test_unlocked_instance_cannot_be_deleted(self) -> None:
-        article = Article.objects.get(pk=2)
+        article = Article.objects.get(pk=6)
         with self.assertRaises(ObjectLocked):
             article.delete()
-        self.assertEqual(article.pk, 2)
+        self.assertEqual(article.pk, 6)
