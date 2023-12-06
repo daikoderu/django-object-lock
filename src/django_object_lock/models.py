@@ -31,12 +31,12 @@ class LockableModel(models.Model):
         raise NotImplementedError('This method must be implemented.')
 
     def save(self, *args, **kwargs):
-        if self.is_locked() and getattr(self, '_was_locked_on_load', False):
+        if self.pk is not None and self.is_locked() and getattr(self, '_was_locked_on_load', False):
             raise ObjectLocked()
         super().save(*args, **kwargs)
         self._was_locked_on_load = self.is_locked()
 
     def delete(self, *args, **kwargs):
-        if self.is_locked():
+        if self.pk is not None and self.is_locked():
             raise ObjectLocked()
         super().delete(*args, **kwargs)
