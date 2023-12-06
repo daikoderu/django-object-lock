@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.admin import ModelAdmin
 from django.utils.safestring import SafeString
 from django_object_lock.admin import LockableAdminMixin
 
@@ -6,7 +7,7 @@ from articles.models import Article, ArticleSection
 
 
 @admin.register(Article)
-class ArticleAdmin(LockableAdminMixin):
+class ArticleAdmin(LockableAdminMixin, ModelAdmin):
     list_display = ('locked_icon', 'title',)
     list_display_links = ('title',)
     fields = ('title', 'rendered_content')
@@ -18,7 +19,7 @@ class ArticleAdmin(LockableAdminMixin):
 
 
 @admin.register(ArticleSection)
-class ArticleSectionAdmin(LockableAdminMixin):
+class ArticleSectionAdmin(LockableAdminMixin, ModelAdmin):
     list_display = ('locked_icon', 'heading', 'parent', 'order')
     list_display_links = ('heading',)
     fields = ('parent', 'heading', 'content', 'order')

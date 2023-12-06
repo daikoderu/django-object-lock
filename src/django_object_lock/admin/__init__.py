@@ -40,13 +40,15 @@ class LockableAdminMixin(admin.ModelAdmin):
             'all': ['django_object_lock/css/admin.css'],
         }
 
+    @admin.display(description='')
     def locked_icon(self, obj: models.Model) -> SafeString:
-        return format_html(
-            format_string='<img src="{src}" alt="{alt}" />',
-            src=static(self.locked_icon_url), alt=_('Locked')
-        ) if self.is_instance_locked(obj) else mark_safe('')
+        return self.locked_icon_html(obj) if self.is_instance_locked(obj) else mark_safe('')
 
-    locked_icon.short_description = ''
+    def locked_icon_html(self, obj: models.Model) -> SafeString:
+        alt = _('%(obj_str)s is locked') % {'obj_str': str(obj)}
+        return format_html(
+            format_string='<img src="{src}" alt="{alt}" title="{alt}" />', src=static(self.locked_icon_url), alt=alt
+        )
 
     def is_instance_locked(self, obj: models.Model) -> bool:
         """Implement this method returning ``True`` if the instance should be considered locked,

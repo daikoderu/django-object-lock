@@ -3,6 +3,7 @@ from django.db import models
 from django.test import Client, TestCase
 from django.urls import reverse
 
+from articles.admin import ArticleAdmin
 from articles.models import Article, ArticleSection
 
 
@@ -12,6 +13,8 @@ def get_admin_url(model_class: type[models.Model], admin_view: str, *args, **kwa
 
 
 class AdminLockingTestCase(TestCase):
+    client = Client()
+    article_admin = ArticleAdmin(Article, 'articles')
 
     @classmethod
     def setUpTestData(cls) -> None:
@@ -31,11 +34,16 @@ class AdminLockingTestCase(TestCase):
         ArticleSection.objects.bulk_create(article_sections)
 
         cls.user = User.objects.create_superuser('foo', 'foo@example.com', '123')
-        cls.client = Client()
 
     def setUp(self):
         self.client.force_login(self.user)
 
-    def test_lock_icons_appear_in_changelist(self) -> None:
+    def test_lock_icons_appear_in_changelist_for_locked_objects(self) -> None:
         response = self.client.get(get_admin_url(Article, 'changelist'), follow=True)
-        self.assertIn(b'alt="Locked"', response.content)
+        article = Article.objects.get(title='Article 2')
+        self.assertIn(self.article_admin.locked_icon_html(article).encode(), response.content)
+
+    def test_lock_icons_do_not_appear_in_changelist_for_unlocked_objects(self) -> None:
+        response = self.client.get(get_admin_url(Article, 'changelist'), follow=True)
+        article = Article.objects.get(title='Article 1')
+        self.assertNotIn(self.article_admin.locked_icon_html(article).encode(), response.content)
