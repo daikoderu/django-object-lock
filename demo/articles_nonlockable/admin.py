@@ -2,11 +2,11 @@ from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 from django_object_lock.admin import LockableAdminMixin
 
-from articles_nonlockable.models import NonLockableArticle
+from articles_nonlockable.models import NonLockableArticle, NotImplementedModel
 
 
 @admin.register(NonLockableArticle)
-class ArticleAdmin(LockableAdminMixin, ModelAdmin):
+class NonLockableArticleAdmin(LockableAdminMixin, ModelAdmin):
     list_display = ('locked_icon', 'title',)
     list_display_links = ('title',)
     fields = ('title',)
@@ -17,3 +17,9 @@ class ArticleAdmin(LockableAdminMixin, ModelAdmin):
 
     def set_locked_status(self, obj: NonLockableArticle, lock: bool) -> None:
         obj.is_locked_flag = lock
+
+
+@admin.register(NotImplementedModel)
+class NotImplementedModelAdmin(LockableAdminMixin, ModelAdmin):
+    list_display = ('locked_icon',)
+    actions = ('lock', 'unlock')

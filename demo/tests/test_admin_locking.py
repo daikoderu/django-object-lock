@@ -1,3 +1,4 @@
+from django.contrib.admin import site
 from django.contrib.auth.models import User
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.db import models
@@ -14,8 +15,8 @@ from articles.models import Article, ArticleSection
 class AdminLockingTestCase(TestCase):
     client = Client()
     admin_site_name = 'admin'
-    article_admin = ArticleAdmin(Article, admin_site_name)
-    article_section_admin = ArticleSectionAdmin(ArticleSection, admin_site_name)
+    article_admin = ArticleAdmin(Article, site)
+    article_section_admin = ArticleSectionAdmin(ArticleSection, site)
     articles = [
         Article(title='Article 1', is_locked_flag=False),
         Article(title='Article 2', is_locked_flag=True),

@@ -58,9 +58,7 @@ class LockableAdminMixin(admin.ModelAdmin):
         If your model inherits from ``LockableModel``, you need not implement this method. In that
         case, the ``LockableModel``'s ``is_locked`` method is used.
         """
-        if obj is None:
-            return False
-        elif isinstance(obj, LockableModel):
+        if isinstance(obj, LockableModel):
             return obj.is_locked()
         else:
             raise NotImplementedError('This method must be implemented.')

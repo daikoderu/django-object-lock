@@ -9,3 +9,13 @@ class NonLockableArticle(models.Model):
     is_locked_flag = models.BooleanField(
         _('is locked'), default=False, help_text=_('Whether this article is locked or not.')
     )
+
+
+class NotImplementedModel(models.Model):
+    """Example of a model that cannot be locked and whose admin does not define the object locking methods,
+    so a ```NotImplementedError`` is raised.
+    """
+
+    class Meta:
+        verbose_name = _('not implemented')
+        verbose_name_plural = _('not implemented')
