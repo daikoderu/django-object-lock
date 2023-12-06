@@ -52,7 +52,7 @@ You can change the "locked" icon image to any static image file by setting the c
 
 ```python
 @admin.register(Article)
-class ArticleAdmin(LockableAdminMixin):
+class ArticleAdmin(LockableAdminMixin, ModelAdmin):
     locked_icon_url = 'myapp/images/lock.png'
 ```
 
@@ -67,7 +67,7 @@ the `lock` and `unlock` actions.
 
 ```python
 @admin.register(Article)
-class ArticleAdmin(LockableAdminMixin):
+class ArticleAdmin(LockableAdminMixin, ModelAdmin):
     actions = ('lock', 'unlock')
 ```
 
