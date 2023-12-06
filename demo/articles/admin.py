@@ -24,3 +24,4 @@ class ArticleSectionAdmin(LockableAdminMixin, ModelAdmin):
     list_display_links = ('heading',)
     fields = ('parent', 'heading', 'content', 'order')
     list_select_related = ('parent',)
+    locked_icon_url = 'articles/images/custom-locked.svg'
