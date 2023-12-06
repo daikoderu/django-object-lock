@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_object_lock',
     'articles',
+    'articles_nonlockable',
 ]
 
 MIDDLEWARE = [
