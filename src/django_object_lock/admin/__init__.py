@@ -1,4 +1,5 @@
 from functools import update_wrapper
+from typing import Optional
 
 from django.contrib import admin
 from django.db import models
@@ -76,11 +77,11 @@ class LockableAdminMixin(admin.ModelAdmin):
         else:
             raise NotImplementedError('This method must be implemented.')
 
-    def has_change_permission(self, request: HttpRequest, obj: models.Model = None) -> bool:
-        return not self.is_instance_locked(obj) and super().has_change_permission(request, obj)
+    def has_change_permission(self, request: HttpRequest, obj: Optional[models.Model] = None) -> bool:
+        return not (obj is not None and self.is_instance_locked(obj)) and super().has_change_permission(request, obj)
 
-    def has_delete_permission(self, request: HttpRequest, obj: models.Model = None) -> bool:
-        return not self.is_instance_locked(obj) and super().has_delete_permission(request, obj)
+    def has_delete_permission(self, request: HttpRequest, obj: Optional[models.Model] = None) -> bool:
+        return not (obj is not None and self.is_instance_locked(obj)) and super().has_delete_permission(request, obj)
 
     def get_urls(self) -> list[URLPattern]:
         def wrap(view):
