@@ -37,6 +37,7 @@ the instance will be locked and the next successful save must unlock the instanc
 use your own attribute to indicate that an object is locked or not.
 
 In this case you will need to define `set_locked(value)` as well to set the "locked" flag to the appropiate value.
+You need not save the object when implementing `set_locked(value)`.
 
 For example:
 

@@ -10,7 +10,8 @@ Define the following methods to implement admin-level locking:
 
 *   `is_instance_locked(obj) -> bool` must return whether the `obj` instance is considered locked (`True`) or not
     (`False`).
-*   `set_locked_status(obj, lock) -> None` must lock the `obj` if `lock` is `True` and unlock it otherwise.
+*   `set_locked_status(obj, lock) -> None` must lock the `obj` if `lock` is `True` and unlock it otherwise. 
+    You need not call `save()` in your implementation.
 
 If the model is lockable on its own and these methods are not defined, `is_locked()` and `set_locked(value)` methods
 are used instead, respectively. This allows you to use different locking logic in the admin and the rest of your
