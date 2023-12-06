@@ -40,23 +40,23 @@ class AdminLockingTestCase(TestCase):
         self.client.force_login(self.user)
 
     def test_lock_icons_appear_in_changelist_for_locked_objects(self) -> None:
-        response = self.client.get(get_admin_url(Article, 'changelist'), follow=True)
+        response = self.client.get(get_admin_url(Article, 'changelist'))
         self.assertIn(self.article_admin.locked_icon_html(self.articles[1]).encode(), response.content)
 
     def test_lock_icons_do_not_appear_in_changelist_for_unlocked_objects(self) -> None:
-        response = self.client.get(get_admin_url(Article, 'changelist'), follow=True)
+        response = self.client.get(get_admin_url(Article, 'changelist'))
         self.assertNotIn(self.article_admin.locked_icon_html(self.articles[0]).encode(), response.content)
 
     def test_change_page_is_readonly_for_locked_objects(self) -> None:
-        response = self.client.get(get_admin_url(Article, 'change', args=(2,)), follow=True)
+        response = self.client.get(get_admin_url(Article, 'change', args=(2,)))
         self.assertNotIn(b'Save', response.content)
 
     def test_change_page_is_editable_for_unlocked_objects(self) -> None:
-        response = self.client.get(get_admin_url(Article, 'change', args=(1,)), follow=True)
+        response = self.client.get(get_admin_url(Article, 'change', args=(1,)))
         self.assertIn(b'Save', response.content)
 
     def test_add_page_is_always_editable(self) -> None:
-        response = self.client.get(get_admin_url(Article, 'add'), follow=True)
+        response = self.client.get(get_admin_url(Article, 'add'))
         self.assertIn(b'Save', response.content)
 
     def test_default_lock_icon_is_used_in_changelist(self) -> None:
@@ -70,3 +70,30 @@ class AdminLockingTestCase(TestCase):
             format_html('src="{src}"', src=static(self.article_section_admin.locked_icon_url)),
             self.article_section_admin.locked_icon_html(self.article_sections[1])
         )
+
+    def test_lock_action_shows_affected_instances(self) -> None:
+        response = self.client.get(get_admin_url(Article, 'lock'), data={'ids': '1'})
+        self.assertIn(b'Articles: 1', response.content)
+        self.assertIn(b'Article 1', response.content)
+
+    def test_unlock_action_shows_affected_instances(self) -> None:
+        response = self.client.get(get_admin_url(Article, 'unlock'), data={'ids': '2,5'})
+        self.assertIn(b'Articles: 2', response.content)
+        self.assertIn(b'Article 2', response.content)
+        self.assertIn(b'Article 5', response.content)
+
+    def test_lock_action_with_invalid_parameters_shows_no_instances(self) -> None:
+        response = self.client.get(get_admin_url(Article, 'lock'), data={'ids': 'a'})
+        self.assertIn(b'No objects have been selected', response.content)
+
+    def test_unlock_action_with_invalid_parameters_shows_no_instances(self) -> None:
+        response = self.client.get(get_admin_url(Article, 'unlock'), data={'ids': 'a'})
+        self.assertIn(b'No objects have been selected', response.content)
+
+    def test_lock_action_locks_on_confirmation(self) -> None:
+        self.client.post(get_admin_url(Article, 'lock'), data={'ids': '4'})
+        self.assertTrue(Article.objects.get(id=4).is_locked())
+
+    def test_unlock_action_unlocks_on_confirmation(self) -> None:
+        self.client.post(get_admin_url(Article, 'unlock'), data={'ids': '3'})
+        self.assertFalse(Article.objects.get(id=3).is_locked())
