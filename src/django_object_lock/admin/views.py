@@ -7,7 +7,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.translation import ngettext_lazy as n_
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from django_object_lock.admin import LockableAdminMixin
 
 

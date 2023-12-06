@@ -36,3 +36,7 @@ class NonModelLockableAdminLockingTestCase(TestCase):
     def test_admin_lock_is_called_when_no_model_locking(self, is_instance_locked) -> None:
         self.client.get(self.get_admin_url(NonLockableArticle, 'changelist'))
         is_instance_locked.assert_called()
+
+    def test_not_implemented_error_raised_when_no_admin_lock_methods_and_no_model_locking(self) -> None:
+        with self.assertRaises(NotImplementedError):
+            self.client.get(self.get_admin_url(NotImplementedModel, 'changelist'))
