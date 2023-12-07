@@ -12,7 +12,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         read_only_fields = ['is_locked_flag']
 
 
-class UserViewSet(
+class ArticleViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
@@ -27,4 +27,4 @@ class UserViewSet(
 
 
 router = DefaultRouter()
-router.register(r'users', UserViewSet)
+router.register(r'articles', ArticleViewSet)

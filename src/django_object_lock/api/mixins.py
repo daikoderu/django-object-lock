@@ -6,7 +6,7 @@ from rest_framework.mixins import UpdateModelMixin, DestroyModelMixin
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from django_object_lock.api.exceptions import APIObjectNotLocked, APIObjectAlreadyLocked, APIObjectLocked
+from django_object_lock.api.exceptions import APIObjectAlreadyUnlocked, APIObjectAlreadyLocked, APIObjectLocked
 from django_object_lock.mixins import LockableMixin
 
 
@@ -34,7 +34,7 @@ class LockableDestroyModelMixin(DestroyModelMixin, LockableMixin):
 
 class LockActionMixin(LockableMixin):
 
-    @action(detail=True, description=_('Lock'))
+    @action(methods=['POST', 'PUT', 'PATCH'], detail=True, description=_('Lock'))
     def lock(self, request: Request, pk: Optional[int | str] = None) -> Response:
         instance = self.get_object()
         if self.is_instance_locked(instance):
@@ -47,11 +47,11 @@ class LockActionMixin(LockableMixin):
 
 class UnlockActionMixin(LockableMixin):
 
-    @action(detail=True, description=_('Unlock'))
+    @action(methods=['POST', 'PUT', 'PATCH'], detail=True, description=_('Unlock'))
     def unlock(self, request: Request, pk: Optional[int | str] = None) -> Response:
         instance = self.get_object()
         if not self.is_instance_locked(instance):
-            raise APIObjectNotLocked()
+            raise APIObjectAlreadyUnlocked()
         self.set_locked_status(instance, False)
         instance.save()
         serializer = self.get_serializer(instance)
