@@ -5,7 +5,7 @@ from rest_framework.test import APIRequestFactory
 from articles.models import Article, ArticleSection
 
 
-class AdminLockingTestCase(TestCase):
+class APILockingTestCase(TestCase):
     factory = APIRequestFactory()
     articles = [
         Article(title='Article 1', is_locked_flag=False),
