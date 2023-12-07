@@ -18,6 +18,8 @@ class UserViewSet(
     mixins.CreateModelMixin,
     dlo_mixins.LockableUpdateModelMixin,
     dlo_mixins.LockableDestroyModelMixin,
+    dlo_mixins.LockActionMixin,
+    dlo_mixins.UnlockActionMixin,
     viewsets.GenericViewSet,
 ):
     queryset = Article.objects.all()
