@@ -1,3 +1,4 @@
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.mixins import UpdateModelMixin, DestroyModelMixin
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -13,7 +14,7 @@ class LockableUpdateModelMixin(UpdateModelMixin, LockableMixin):
     def update(self, request: Request, *args, **kwargs) -> Response:
         instance = self.get_object()
         if self.is_instance_locked(instance):
-            raise ObjectLocked()
+            raise PermissionDenied(ObjectLocked())
         return super().update(request, *args, **kwargs)
 
 
@@ -24,5 +25,5 @@ class LockableDestroyModelMixin(DestroyModelMixin, LockableMixin):
     def destroy(self, request: Request, *args, **kwargs) -> Response:
         instance = self.get_object()
         if self.is_instance_locked(instance):
-            raise ObjectLocked()
+            raise PermissionDenied(ObjectLocked())
         return super().destroy(request, *args, **kwargs)
