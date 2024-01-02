@@ -1,8 +1,14 @@
+from typing import Optional
+
 from django_object_lock.api import mixins as dlo_mixins
 from rest_framework import viewsets, serializers, mixins
+from rest_framework.decorators import action
+from rest_framework.request import Request
+from rest_framework.response import Response
 from rest_framework.routers import DefaultRouter
 
 from articles.models import Article
+from django_object_lock.mixins import LockableMixin
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -18,12 +24,18 @@ class ArticleViewSet(
     mixins.CreateModelMixin,
     dlo_mixins.LockableUpdateModelMixin,
     dlo_mixins.LockableDestroyModelMixin,
-    dlo_mixins.LockActionMixin,
-    dlo_mixins.UnlockActionMixin,
     viewsets.GenericViewSet,
 ):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
+
+    @action(methods=['PUT', 'PATCH'], detail=True)
+    def lock(self: LockableMixin, request: Request, pk: Optional[int | str] = None) -> Response:
+        return dlo_mixins.lock_action(self, request, pk)
+
+    @action(methods=['PUT', 'PATCH'], detail=True)
+    def unlock(self: LockableMixin, request: Request, pk: Optional[int | str] = None) -> Response:
+        return dlo_mixins.unlock_action(self, request, pk)
 
 
 router = DefaultRouter()
