@@ -1,9 +1,10 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 from django.utils.safestring import SafeString
+from django.utils.translation import gettext_lazy as _
 from django_object_lock.admin import LockableAdminMixin
 
-from articles.models import Article, ArticleSection
+from articles.models import Article, ArticleSection, NotLockedModel
 
 
 @admin.register(Article)
@@ -25,3 +26,19 @@ class ArticleSectionAdmin(LockableAdminMixin, ModelAdmin):
     fields = ('parent', 'heading', 'content', 'order')
     list_select_related = ('parent',)
     locked_icon_url = 'articles/images/locked.svg'
+
+
+@admin.register(NotLockedModel)
+class NotLockedModelAdmin(LockableAdminMixin, ModelAdmin):
+    list_display = ('locked_icon', 'name')
+    list_display_links = ('name',)
+    fieldsets = [
+        (None, {
+            'description': _(
+                'This model does not define locking behavior, and this admin does not define it neither. '
+                'You will always get an error when saving, until you define the locking behavior.'
+            ),
+            'fields': ('name',)
+        })
+    ]
+    actions = ('lock', 'unlock')

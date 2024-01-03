@@ -54,3 +54,12 @@ class ArticleSection(LockableModel):
 
     def is_locked(self) -> bool:
         return self.parent.is_locked_flag
+
+
+class NotLockedModel(models.Model):
+    """Example of a model that cannot be locked.
+    """
+    name = models.CharField(_('name'), max_length=120, help_text=_('The name of this instance.'))
+
+    def __str__(self) -> str:
+        return f'NotLockedModel "{self.name}"'

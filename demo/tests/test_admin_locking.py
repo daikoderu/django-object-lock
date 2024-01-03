@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 from articles.admin import ArticleAdmin, ArticleSectionAdmin
-from articles.models import Article, ArticleSection
+from articles.models import Article, ArticleSection, NotLockedModel
 
 
 class AdminLockingTestCase(TestCase):
@@ -28,11 +28,15 @@ class AdminLockingTestCase(TestCase):
         ArticleSection(parent=articles[0], heading='Section 1.1', content='Lorem', order=1),
         ArticleSection(parent=articles[1], heading='Section 2.1', content='Dolor', order=1),
     ]
+    not_lockeds = [
+        NotLockedModel(name='foo'),
+    ]
 
     @classmethod
     def setUpTestData(cls) -> None:
         Article.objects.bulk_create(cls.articles)
         ArticleSection.objects.bulk_create(cls.article_sections)
+        NotLockedModel.objects.bulk_create(cls.not_lockeds)
         cls.user = User.objects.create_superuser('foo', 'foo@example.com', '123')
 
     def setUp(self):
@@ -114,3 +118,11 @@ class AdminLockingTestCase(TestCase):
     def test_unlock_action_unlocks_on_confirmation(self) -> None:
         self.client.post(self.get_admin_url(Article, 'unlock'), data={'ids': '3'})
         self.assertFalse(Article.objects.get(id=3).is_locked())
+
+    def test_is_locked_not_defined_in_model_nor_admin_raises_not_implemented(self) -> None:
+        with self.assertRaises(NotImplementedError):
+            self.client.get(self.get_admin_url(NotLockedModel, 'changelist'))
+
+    def test_set_locked_not_defined_in_model_nor_admin_raises_not_implemented(self) -> None:
+        with self.assertRaises(NotImplementedError):
+            self.client.post(self.get_admin_url(NotLockedModel, 'lock'), data={'ids': '1'})
