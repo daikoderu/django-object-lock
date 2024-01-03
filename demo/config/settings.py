@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'django_object_lock',
     'rest_framework',
     'articles',
-    'articles_nonlockable',
 ]
 
 MIDDLEWARE = [
