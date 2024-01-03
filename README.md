@@ -68,8 +68,8 @@ cd demo && python manage.py runserver
 Or run tests with Tox:
 
 ```sh
-# Test for Python 3.12.
-tox -e py3.12
+# Test for Python 3.12, Django 5.0 and Django REST Framework 3.14.
+tox -e py3.12-django5.0-drf3.14
 
 # Generate a coverage report.
 tox -e coverage
