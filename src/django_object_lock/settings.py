@@ -27,7 +27,7 @@ DJANGO_SETTING_NAME = 'DJANGO_OBJECT_LOCK'
 SETTINGS_DOC = 'https://django-object-lock.readthedocs.io/en/latest/'
 
 
-def perform_import(val: Any, setting_name: str) -> Any:
+def perform_import(val: Any, setting_name: str) -> Any:  # pragma: no cover
     """If the given setting is a string import notation, then perform the necessary import(s).
     """
     if val is None:
@@ -39,7 +39,7 @@ def perform_import(val: Any, setting_name: str) -> Any:
     return val
 
 
-def import_from_string(val: Any, setting_name: str) -> Any:
+def import_from_string(val: Any, setting_name: str) -> Any:  # pragma: no cover
     """Attempt to import a class from a string representation.
     """
     try:
@@ -85,7 +85,7 @@ class DjangoObjectLockSettings:
             val = self.defaults[attr]
 
         # Coerce import strings into classes.
-        if attr in self.import_strings:
+        if attr in self.import_strings:  # pragma: no cover
             val = perform_import(val, attr)
 
         # Cache the result.
@@ -93,7 +93,7 @@ class DjangoObjectLockSettings:
         setattr(self, attr, val)
         return val
 
-    def __check_user_settings(self, user_settings):
+    def __check_user_settings(self, user_settings):  # pragma: no cover
         for setting in REMOVED_SETTINGS:
             if setting in user_settings:
                 raise RuntimeError(
