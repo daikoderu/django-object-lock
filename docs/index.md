@@ -12,7 +12,6 @@ and then "unlock" it to allow further modifications or deletions.
 :maxdepth: 1
 
 installation
-demo
 model-locking
 admin-locking
 api-locking

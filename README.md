@@ -38,7 +38,7 @@ Check out the [documentation](https://django-object-lock.readthedocs.io/) for mo
 
 *   Python >= 3.11
 *   Django >= 4.1
-*   Django REST Framework >= 3.14 (to enforce object locking from your API `ViewSet`s)
+*   Django REST Framework >= 3.14 (to enforce object locking from your API generic views and viewsets)
 
 Django is the only required dependency.
 
@@ -47,7 +47,11 @@ Django is the only required dependency.
 
 You can find a demo project and a test suite in the `demo` directory.
 
-The demo project contains two lockable models: an `Article` model and a child `ArticleSection` model.
+The demo project contains three lockable models:
+
+*   an `Article` model,
+*   a child `ArticleSection` model, and
+*   a `NotLockedModel` that is registered in the admin as a lockable model, but it does not have locking logic.
 
 You will need to install development dependencies in your Python environment:
 
