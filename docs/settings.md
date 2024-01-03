@@ -15,6 +15,10 @@ Your Django project will be reloaded when any of these settings change.
 
 ## List of settings
 
+```{glossary}
+
 `DEFAULT_LOCKED_ICON_URL: str`
     A string representing a static resource (image) to be used as the "locked" icon by default.
     You can override it for a specific admin by setting `locked_icon_url` in that admin.
+
+```
