@@ -1,3 +1,5 @@
+from typing import Type
+
 from django.contrib.admin import site
 from django.contrib.auth.models import User
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
@@ -34,7 +36,8 @@ class AdminLockingTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls) -> None:
-        Article.objects.bulk_create(cls.articles)
+        for article in cls.articles:
+            article.save()
         ArticleSection.objects.bulk_create(cls.article_sections)
         NotLockedModel.objects.bulk_create(cls.not_lockeds)
         cls.user = User.objects.create_superuser('foo', 'foo@example.com', '123')
@@ -42,7 +45,7 @@ class AdminLockingTestCase(TestCase):
     def setUp(self):
         self.client.force_login(self.user)
 
-    def get_admin_url(self, model_class: type[models.Model], admin_view: str, *args, **kwargs) -> str:
+    def get_admin_url(self, model_class: Type[models.Model], admin_view: str, *args, **kwargs) -> str:
         info = self.admin_site_name, model_class._meta.app_label, model_class._meta.model_name, admin_view
         return reverse('%s:%s_%s_%s' % info, *args, **kwargs)
 

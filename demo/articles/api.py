@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Union
 
 from django_object_lock.api import mixins as dlo_mixins
 from django_object_lock.mixins import LockableMixin
@@ -30,11 +30,11 @@ class ArticleViewSet(
     serializer_class = ArticleSerializer
 
     @action(methods=['PUT', 'PATCH'], detail=True)
-    def lock(self: LockableMixin, request: Request, pk: Optional[int | str] = None) -> Response:
+    def lock(self: LockableMixin, request: Request, pk: Union[int, str, None] = None) -> Response:
         return dlo_mixins.lock_action(self, request, pk)
 
     @action(methods=['PUT', 'PATCH'], detail=True)
-    def unlock(self: LockableMixin, request: Request, pk: Optional[int | str] = None) -> Response:
+    def unlock(self: LockableMixin, request: Request, pk: Union[int, str, None] = None) -> Response:
         return dlo_mixins.unlock_action(self, request, pk)
 
 

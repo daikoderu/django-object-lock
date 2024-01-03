@@ -36,9 +36,9 @@ Check out the [documentation](https://django-object-lock.readthedocs.io/) for mo
 
 `django-object-lock` is tested with the following versions of Python and Django:
 
-*   Python >= 3.7
-*   Django >= 3, 4 and 5
-*   Django REST Framework >= 3.12 (to enforce object locking from your API generic views and viewsets)
+*   Python >= 3.8
+*   Django 4 or 5
+*   Django REST Framework >= 3.14 (to enforce object locking from your API generic views and viewsets)
 
 Django is the only required dependency.
 

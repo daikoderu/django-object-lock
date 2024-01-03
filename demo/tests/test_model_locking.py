@@ -15,7 +15,8 @@ class ModelLockingTestCase(TestCase):
             Article(title='Article 4', is_locked_flag=False),
             Article(title='Article 5', is_locked_flag=True),
         ]
-        Article.objects.bulk_create(articles)
+        for article in articles:
+            article.save()
 
         article_sections = [
             ArticleSection(parent=articles[0], heading='Section 1.1', content='Lorem', order=1),

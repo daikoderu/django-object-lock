@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union, Type
 
 from django.contrib import messages
 from django.db.models import Model, QuerySet
@@ -11,7 +11,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from django_object_lock.admin import LockableAdminMixin
 
 
-def get_lockable_objects(model: type[Model], pk_string: str) -> QuerySet[Model]:
+def get_lockable_objects(model: Type[Model], pk_string: str) -> QuerySet:
     try:
         return model.objects.filter(pk__in=pk_string.strip().split(','))
     except ValueError:
@@ -20,7 +20,7 @@ def get_lockable_objects(model: type[Model], pk_string: str) -> QuerySet[Model]:
 
 def default_lock_or_unlock_view(
     modeladmin: 'LockableAdminMixin', request: HttpRequest, lock: bool
-) -> TemplateResponse | HttpResponseRedirect:
+) -> Union[TemplateResponse, HttpResponseRedirect]:
     model = modeladmin.model
     ids_string = request.POST.get('ids', request.GET.get('ids', ''))
     objects = [

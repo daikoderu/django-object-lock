@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Union
 
 from rest_framework.mixins import UpdateModelMixin, DestroyModelMixin
 from rest_framework.request import Request
@@ -30,7 +30,7 @@ class LockableDestroyModelMixin(DestroyModelMixin, LockableMixin):
         return super().destroy(request, *args, **kwargs)
 
 
-def lock_action(viewset: LockableMixin, request: Request, pk: Optional[int | str] = None) -> Response:
+def lock_action(viewset: LockableMixin, request: Request, pk: Union[int, str, None] = None) -> Response:
     instance = viewset.get_object()  # noqa
     if viewset.is_instance_locked(instance):
         raise APIObjectAlreadyLocked()
@@ -40,7 +40,7 @@ def lock_action(viewset: LockableMixin, request: Request, pk: Optional[int | str
     return Response(serializer.data)
 
 
-def unlock_action(viewset: LockableMixin, request: Request, pk: Optional[int | str] = None) -> Response:
+def unlock_action(viewset: LockableMixin, request: Request, pk: Union[int, str, None] = None) -> Response:
     instance = viewset.get_object()  # noqa
     if not viewset.is_instance_locked(instance):
         raise APIObjectAlreadyUnlocked()

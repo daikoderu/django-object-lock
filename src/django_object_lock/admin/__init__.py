@@ -1,7 +1,6 @@
 from functools import update_wrapper
-from typing import Optional
+from typing import Optional, List
 
-from django.contrib import admin
 from django.db import models
 from django.db.models import QuerySet
 from django.http import HttpResponseRedirect
@@ -37,9 +36,10 @@ class LockableAdminMixin(LockableMixin):
             'all': ['django_object_lock/css/admin.css'],
         }
 
-    @admin.display(description='')
     def locked_icon(self, obj: models.Model) -> SafeString:
         return self.locked_icon_html(obj) if self.is_instance_locked(obj) else mark_safe('')
+
+    locked_icon.short_description = ''
 
     def locked_icon_html(self, obj: models.Model) -> SafeString:
         alt = _('%(obj_str)s is locked') % {'obj_str': str(obj)}
@@ -53,7 +53,7 @@ class LockableAdminMixin(LockableMixin):
     def has_delete_permission(self, request: HttpRequest, obj: Optional[models.Model] = None) -> bool:
         return not (obj is not None and self.is_instance_locked(obj)) and super().has_delete_permission(request, obj)
 
-    def get_urls(self) -> list[URLPattern]:
+    def get_urls(self) -> List[URLPattern]:
         def wrap(view):
             def wrapper(*args, **kwargs):
                 return self.admin_site.admin_view(view)(*args, **kwargs)
@@ -71,16 +71,18 @@ class LockableAdminMixin(LockableMixin):
 
         return [*extra_urls, *super().get_urls()]
 
-    @admin.action(description=_('Lock selected %(verbose_name_plural)s'))
     def lock(self, request: HttpRequest, queryset: QuerySet) -> HttpResponseRedirect:
         info = self.admin_site.name, self.opts.app_label, self.opts.model_name
         path = reverse('%s:%s_%s_lock' % info)
         pks = ','.join(str(pk) for pk in queryset.values_list('pk', flat=True))
         return HttpResponseRedirect('%s?ids=%s' % (path, pks))
 
-    @admin.action(description=_('Unlock selected %(verbose_name_plural)s'))
+    lock.short_description = _('Lock selected %(verbose_name_plural)s')
+
     def unlock(self, request: HttpRequest, queryset: QuerySet) -> HttpResponseRedirect:
         info = self.admin_site.name, self.opts.app_label, self.opts.model_name
         path = reverse('%s:%s_%s_unlock' % info)
         pks = ','.join(str(pk) for pk in queryset.values_list('pk', flat=True))
         return HttpResponseRedirect('%s?ids=%s' % (path, pks))
+
+    unlock.short_description = _('Unlock selected %(verbose_name_plural)s')
