@@ -36,9 +36,9 @@ Check out the [documentation](https://django-object-lock.readthedocs.io/) for mo
 
 `django-object-lock` is tested with the following versions of Python and Django:
 
-*   Python >= 3.11
-*   Django >= 4.1
-*   Django REST Framework >= 3.14 (to enforce object locking from your API generic views and viewsets)
+*   Python >= 3.7
+*   Django >= 3, 4 and 5
+*   Django REST Framework >= 3.12 (to enforce object locking from your API generic views and viewsets)
 
 Django is the only required dependency.
 
@@ -68,8 +68,8 @@ cd demo && python manage.py runserver
 Or run tests with Tox:
 
 ```sh
-# Test for Python 3.12 and Django 4.2.
-tox -e py3.12-django4.2
+# Test for Python 3.12.
+tox -e py3.12
 
 # Generate a coverage report.
 tox -e coverage
