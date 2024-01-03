@@ -1,6 +1,7 @@
 from typing import Optional
 
 from django_object_lock.api import mixins as dlo_mixins
+from django_object_lock.mixins import LockableMixin
 from rest_framework import viewsets, serializers, mixins
 from rest_framework.decorators import action
 from rest_framework.request import Request
@@ -8,7 +9,6 @@ from rest_framework.response import Response
 from rest_framework.routers import DefaultRouter
 
 from articles.models import Article
-from django_object_lock.mixins import LockableMixin
 
 
 class ArticleSerializer(serializers.ModelSerializer):
