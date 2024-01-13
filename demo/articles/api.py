@@ -1,6 +1,6 @@
 from typing import Union
 
-from django_object_lock.api import mixins as dlo_mixins
+from django_object_lock.api import mixins as dol_mixins
 from django_object_lock.mixins import LockableMixin
 from rest_framework import viewsets, serializers, mixins
 from rest_framework.decorators import action
@@ -22,8 +22,8 @@ class ArticleViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
-    dlo_mixins.LockableUpdateModelMixin,
-    dlo_mixins.LockableDestroyModelMixin,
+    dol_mixins.LockableUpdateModelMixin,
+    dol_mixins.LockableDestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     queryset = Article.objects.all()
@@ -31,11 +31,11 @@ class ArticleViewSet(
 
     @action(methods=['PUT', 'PATCH'], detail=True)
     def lock(self: LockableMixin, request: Request, pk: Union[int, str, None] = None) -> Response:
-        return dlo_mixins.lock_action(self, request, pk)
+        return dol_mixins.lock_action(self, request, pk)
 
     @action(methods=['PUT', 'PATCH'], detail=True)
     def unlock(self: LockableMixin, request: Request, pk: Union[int, str, None] = None) -> Response:
-        return dlo_mixins.unlock_action(self, request, pk)
+        return dol_mixins.unlock_action(self, request, pk)
 
 
 router = DefaultRouter()

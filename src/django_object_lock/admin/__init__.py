@@ -14,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_object_lock.admin.views import default_lock_view, default_unlock_view
 from django_object_lock.mixins import LockableMixin
-from django_object_lock.settings import dlo_settings
+from django_object_lock.settings import dol_settings
 
 
 class LockableAdminMixin(LockableMixin):
@@ -27,7 +27,7 @@ class LockableAdminMixin(LockableMixin):
 
     To allow manual object locking and/or unlocking, add the ``lock`` and/or ``unlock`` actions.
     """
-    locked_icon_url: str = dlo_settings.DEFAULT_LOCKED_ICON_URL
+    locked_icon_url: str = dol_settings.DEFAULT_LOCKED_ICON_URL
     lock_view = default_lock_view
     unlock_view = default_unlock_view
 

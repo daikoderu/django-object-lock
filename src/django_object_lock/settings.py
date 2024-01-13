@@ -1,3 +1,9 @@
+"""Settings object definition for ``django_object_lock.
+
+Based on Django REST Framework's settings file.
+https://github.com/encode/django-rest-framework/blob/master/rest_framework/settings.py
+"""
+
 from typing import Any
 
 from django.conf import settings
@@ -56,8 +62,8 @@ class DjangoObjectLockSettings:
 
     .. code-block:: python
 
-        from django_object_lock.settings import dlo_settings
-        print(dlo_settings.DEFAULT_LOCKED_ICON_URL)
+        from django_object_lock.settings import dol_settings
+        print(dol_settings.DEFAULT_LOCKED_ICON_URL)
     """
 
     def __init__(self, user_settings=None, defaults=None, import_strings=None):
@@ -110,13 +116,13 @@ class DjangoObjectLockSettings:
             delattr(self, '_user_settings')
 
 
-dlo_settings = DjangoObjectLockSettings(None, DEFAULTS, IMPORT_STRINGS)
+dol_settings = DjangoObjectLockSettings(None, DEFAULTS, IMPORT_STRINGS)
 
 
 def reload_settings(*args, **kwargs):
     setting = kwargs['setting']
     if setting == DJANGO_SETTING_NAME:
-        dlo_settings.reload()
+        dol_settings.reload()
 
 
 setting_changed.connect(reload_settings)

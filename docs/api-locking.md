@@ -29,7 +29,7 @@ You will get a `NotImplementedError` if neither `is_instance_locked` nor `is_loc
 For example, if you have defined `is_locked()` and `set_locked(value)`, this would be enough:
 
 ```python
-from django_object_lock.api import mixins as dlo_mixins
+from django_object_lock.api import mixins as dol_mixins
 from rest_framework import viewsets, serializers, mixins
 
 from articles.models import Article
@@ -41,8 +41,8 @@ class ArticleViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
-    dlo_mixins.LockableUpdateModelMixin,
-    dlo_mixins.LockableDestroyModelMixin,
+    dol_mixins.LockableUpdateModelMixin,
+    dol_mixins.LockableDestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     queryset = Article.objects.all()
@@ -58,7 +58,7 @@ to give flexibility to set any action name or methods. Instead, add them as acti
 ```python
 from typing import Optional
 
-from django_object_lock.api import mixins as dlo_mixins
+from django_object_lock.api import mixins as dol_mixins
 from django_object_lock.mixins import LockableMixin
 from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
@@ -69,19 +69,19 @@ class ArticleViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.CreateModelMixin,
-    dlo_mixins.LockableUpdateModelMixin,
-    dlo_mixins.LockableDestroyModelMixin,
+    dol_mixins.LockableUpdateModelMixin,
+    dol_mixins.LockableDestroyModelMixin,
     viewsets.GenericViewSet,
 ):
     ...
 
     @action(methods=['PUT', 'PATCH'], detail=True)
     def lock(self: LockableMixin, request: Request, pk: Optional[int | str] = None) -> Response:
-        return dlo_mixins.lock_action(self, request, pk)
+        return dol_mixins.lock_action(self, request, pk)
 
     @action(methods=['PUT', 'PATCH'], detail=True)
     def unlock(self: LockableMixin, request: Request, pk: Optional[int | str] = None) -> Response:
-        return dlo_mixins.unlock_action(self, request, pk)
+        return dol_mixins.unlock_action(self, request, pk)
 ```
 
 ```{important}
