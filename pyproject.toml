@@ -7,7 +7,7 @@ authors = [
 description = 'Lock your model instances to prevent their unintended modification or deletion.'
 readme = 'README.md'
 license = { file = 'LICENSE' }
-requires-python = '>=3.6'
+requires-python = '>=3.8'
 dependencies = [
     'django',
 ]
