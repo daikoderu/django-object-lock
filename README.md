@@ -56,7 +56,7 @@ The demo project contains three lockable models:
 You will need to install development dependencies in your Python environment:
 
 ```sh
-pip install -r requirements-dev.txt
+pip install -r requirements/requirements-dev.txt
 ```
 
 Then, run the demo application:
