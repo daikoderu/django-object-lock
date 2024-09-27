@@ -1,4 +1,4 @@
-"""Settings object definition for ``django_object_lock.
+"""Settings object definition for ``django_object_lock``.
 
 Based on Django REST Framework's settings file.
 https://github.com/encode/django-rest-framework/blob/master/rest_framework/settings.py
