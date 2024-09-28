@@ -2,7 +2,7 @@
 name = 'django-object-lock'
 version = '1.0.0'
 authors = [
-    { name = 'Daikoderu', email = 'daikoderu@gmail.com' },
+    { name = 'Daniel Pérez Porras "Daikoderu"', email = 'daikoderu@gmail.com' },
 ]
 description = 'Lock your model instances to prevent their unintended modification or deletion.'
 readme = 'README.md'

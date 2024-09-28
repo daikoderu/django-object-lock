@@ -7,8 +7,8 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Django Object Lock'
-copyright = '2023, Daikoderu'
-author = 'Daikoderu'
+author = 'Daniel Pérez Porras "Daikoderu"'
+copyright = f'2024, {author}'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
